@@ -1,6 +1,17 @@
 from pydantic import BaseModel, Field
 from typing import List
 
+
+class UserCreate(BaseModel):
+    login: str = Field(..., min_length=1, max_length=200)
+    password: str = Field(..., min_length=4, max_length=200)
+
+class UserDb(BaseModel):
+    id: int
+    class Config:
+        orm_mode = True
+
+
 class BookBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
     pages: int = Field(..., gt=10)

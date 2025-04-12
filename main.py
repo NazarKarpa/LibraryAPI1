@@ -41,42 +41,39 @@ async def get_all_books(db: Session = Depends(get_db)):
     return crud.get_all_books(db)
 
 @app.post('/add_book')
-async def add_new_book(book: schemas.BookDB):
+async def add_new_book(book: schemas.BookCreate, db: Session = Depends(get_db)):
     """add new book"""
-    if book.author not in all_books:
-        all_books[book.author] = [[book.title], [book.pages]]
-    else:
-        all_books[book.author].append([book.title],[book.pages])
-
-    return {"message": "Book created"}
+    new_book = crud.create_book(book, db)
+    return {"message": "Book created", 'book': new_book}
 
 @app.get("/author/{author}")
-async  def get_author_books(author: str):
-    if author in all_books:
-        return all_books[author]
+async  def get_author_books(author: str, db: Session = Depends(get_db)):
+    books = crud.get_books_by_author(author, db)
+    if books:
+        return books
     else:
-        return {"message": "Books not found"}
+        return {'message': 'this author nety'}
+
 
 @app.put("/{author}/{book_title}")
-async def update_book_pages(author: str, book_title: str,
-                            new_pages: int = Query(gt=10, title='new page count',
-                            description='new count pages in book')):
+async def update_book_pages(author: str,
+                            title: str,
+                            pages: int = Query(gt=10, title='new pages count'),
+                            db: Session = Depends(get_db)):
+
     if author in all_books:
         for book in all_books[author]:
-            if book[0] == book_title:
-                book[1] = new_pages
+            if book[0] == title:
+                book[1] = pages
                 return {'message': 'update count pages'}
 
     return {'error': 'not found'}
 
 
 @app.delete('/{author}/{book_title}')
-async def delete_book(author: str, book_title: str,):
-    if author in all_books:
-        for book in all_books[author]:
-            if book[0] == book_title:
-                all_books[author].remove(book)
-                return {'message': 'success del'}
+async def delete_book(author: str, book_title: str, db: Session = Depends(get_db)):
+    if crud.delete_book(author, book_title, db):
+        return {'message': 'Book was deleted'}
 
     return {'message': 'not found'}
 

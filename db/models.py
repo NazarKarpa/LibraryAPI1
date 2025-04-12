@@ -4,6 +4,15 @@ from sqlalchemy.orm import relationship
 from .database import Base
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    login= Column(String(200), nullable=False, unique=True)
+    password = Column(String, nullable=False)
+
+
+
 class Author(Base):
     __tablename__ = "authors"
 
