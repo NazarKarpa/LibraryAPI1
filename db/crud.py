@@ -40,5 +40,11 @@ def delete_book(author_name:str, book_title:str, db: Session):
 
 
 def update_pages_book(author_name:str, book_title:str, db: Session):
-    pass
+    book = db.query(Book).join(Author).filter(Author.name == author_name, Book.title == book_title).first()
+    if book:
+        db.refresh(book)
+        db.commit()
+        return True
+    return False
+
 

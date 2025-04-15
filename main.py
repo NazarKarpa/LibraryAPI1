@@ -61,12 +61,8 @@ async def update_book_pages(author: str,
                             pages: int = Query(gt=10, title='new pages count'),
                             db: Session = Depends(get_db)):
 
-    if author in all_books:
-        for book in all_books[author]:
-            if book[0] == title:
-                book[1] = pages
-                return {'message': 'update count pages'}
-
+    if crud.update_pages_book(author, title,  db):
+        return {'message': 'Book was update'}
     return {'error': 'not found'}
 
 
